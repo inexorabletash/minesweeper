@@ -1,7 +1,7 @@
 /*----- constants -----*/
 var bombImage = '<img src="images/bomb.png">';
 var flagImage = '<img src="images/flag.png">';
-var wrongBombImage = '<img src="images/wrong-bomb.png">'
+var wrongBombImage = '<img src="images/wrong-bomb.png">';
 var sizeLookup = {
   '9': {totalBombs: 10},
   '16': {totalBombs: 40},
@@ -72,9 +72,9 @@ boardEl.addEventListener('mousedown', function(e) {
     }
     winner = getWinner();
     render();
-  } else if (clickedEl.classList.contains('revealed') && e.shiftKey) {
-    // Shift+Click on revealed cell - shortcut for revealing all
-    // non-flagged adjacent cells.
+  } else if (clickedEl.classList.contains('revealed')) {
+    // Click on revealed cell - shortcut for revealing all
+    // non-flagged adjacent cells (if number of flags is correct)
     row = parseInt(clickedEl.dataset.row);
     col = parseInt(clickedEl.dataset.col);
     cell = board[row][col];
@@ -91,7 +91,7 @@ boardEl.addEventListener('mousedown', function(e) {
       }
     }
 
-    // If enough are flagged, reveal all adjacent non-flagged cells.
+    // If correct number are flagged, reveal all adjacent non-flagged cells.
     if (adjacentFlagCount === cell.adjBombs) {
       for (dx = -1; !hitBomb && dx <= 1; ++dx) {
         for (dy = -1; !hitBomb && dy <= 1; ++dy) {
