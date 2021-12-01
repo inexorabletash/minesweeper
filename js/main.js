@@ -3,9 +3,9 @@ var bombImage = '<img src="images/bomb.png">';
 var flagImage = '<img src="images/flag.png">';
 var wrongBombImage = '<img src="images/wrong-bomb.png">'
 var sizeLookup = {
-  '9': {totalBombs: 10, tableWidth: '245px'},
-  '16': {totalBombs: 40, tableWidth: '420px'},
-  '30': {totalBombs: 160, tableWidth: '794px'}
+  '9': {totalBombs: 10},
+  '16': {totalBombs: 40},
+  '30': {totalBombs: 160}
 };
 var colors = [
   '',
@@ -169,7 +169,6 @@ function buildTable() {
     </tr>
     `;
   boardEl.innerHTML = topRow + `<tr>${'<td class="game-cell"></td>'.repeat(size)}</tr>`.repeat(size);
-  boardEl.style.width = sizeLookup[size].tableWidth;
   createResetListener();
   var cells = Array.from(document.querySelectorAll('td:not(.menu)'));
   cells.forEach(function(cell, idx) {
