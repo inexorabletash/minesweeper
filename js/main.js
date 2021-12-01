@@ -61,8 +61,8 @@ boardEl.addEventListener('mousedown', function(e) {
       if (bombCount > 0) {
         bombCount += cell.flag() ? -1 : 1;
       }
-    } else {
-      // Left click - reveal
+    } else if (!cell.flagged){
+      // Left click - reveal if not flagged
       hitBomb = cell.reveal();
       if (hitBomb) {
         revealAll();
