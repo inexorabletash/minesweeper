@@ -40,18 +40,29 @@ document.getElementById('size-btns').addEventListener('click', function(e) {
   render();
 });
 
-boardEl.addEventListener('click', function(e) {
+boardEl.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+});
+
+
+boardEl.addEventListener('mousedown', function(e) {
   if (winner || hitBomb) return;
-  var clickedEl;
+  var clickedEl, row, col, cell;
   clickedEl = e.target.tagName.toLowerCase() === 'img' ? e.target.parentElement : e.target;
+
   if (clickedEl.classList.contains('game-cell')) {
+    // Click on non-revealed cell
     if (!timerId) setTimer();
-    var row = parseInt(clickedEl.dataset.row);
-    var col = parseInt(clickedEl.dataset.col);
-    var cell = board[row][col];
-    if (e.shiftKey && !cell.revealed && bombCount > 0) {
-      bombCount += cell.flag() ? -1 : 1;
+    row = parseInt(clickedEl.dataset.row);
+    col = parseInt(clickedEl.dataset.col);
+    cell = board[row][col];
+    if (e.button === 2) {
+      // Right click - toggle flag
+      if (bombCount > 0) {
+        bombCount += cell.flag() ? -1 : 1;
+      }
     } else {
+      // Left click - reveal
       hitBomb = cell.reveal();
       if (hitBomb) {
         revealAll();
@@ -61,10 +72,56 @@ boardEl.addEventListener('click', function(e) {
     }
     winner = getWinner();
     render();
+  } else if (clickedEl.classList.contains('revealed') && e.shiftKey) {
+    // Shift+Click on revealed cell - shortcut for revealing all
+    // non-flagged adjacent cells.
+    row = parseInt(clickedEl.dataset.row);
+    col = parseInt(clickedEl.dataset.col);
+    cell = board[row][col];
+
+    // First count the number of adjacent flags.
+    var adjacentFlagCount = 0;
+    var dx, dy, other;
+    for (dx = -1; dx <= 1; ++dx) {
+      for (dy = -1; dy <= 1; ++dy) {
+        if (dx || dy) {
+          other = maybeGetCell(board, row + dy, col+dx);
+          adjacentFlagCount += (other && other.flagged) ? 1 : 0;
+        }
+      }
+    }
+
+    // If enough are flagged, reveal all adjacent non-flagged cells.
+    if (adjacentFlagCount === cell.adjBombs) {
+      for (dx = -1; !hitBomb && dx <= 1; ++dx) {
+        for (dy = -1; !hitBomb && dy <= 1; ++dy) {
+          other = maybeGetCell(board, row + dy, col+dx);
+          if (other && !other.revealed && !other.flagged) {
+            hitBomb = other.reveal();
+          }
+        }
+      }
+      if (hitBomb) {
+        revealAll();
+        clearInterval(timerId);
+        e.target.style.backgroundColor = 'red';
+      }
+      winner = getWinner();
+      render();
+    }
   }
 });
 
-function createResetListener() { 
+function maybeGetCell(board, row, col) {
+  if (row < 0 || row >= board.length)
+    return null;
+  var slice = board[row];
+  if (col < 0 || col >= slice.length)
+    return null;
+  return slice[col];
+}
+
+function createResetListener() {
   document.getElementById('reset').addEventListener('click', function() {
     init();
     render();
@@ -182,7 +239,7 @@ function getWinner() {
       var cell = board[row][col];
       if (!cell.revealed && !cell.bomb) return false;
     }
-  } 
+  }
   return true;
 };
 
