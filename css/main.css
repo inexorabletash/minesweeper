@@ -119,7 +119,7 @@ button:hover {
     background-color: #C0C0C0;
     font-size: 80%;
     text-align: center;
-    border: none;
+    border-color: transparent;
 }
 
 #reset:hover {
